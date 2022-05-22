@@ -5,6 +5,11 @@
 You will need a skillshare premium account to access premium content.
 This script will not handle login for you.
 
+### Requirements:
+Install Python-slugify and add it to PATH
+
+### Instructions:
+
 1. Log-in to skillshare in your browser.
 2. Download "CookieManager - Cookie Editor" extension: https://chrome.google.com/webstore/detail/cookiemanager-cookie-edit/hdhngoamekjhmnpenphenpaiindoinpo
 3. Go to skillshare course you want to download.
