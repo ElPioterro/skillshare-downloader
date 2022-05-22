@@ -6,8 +6,7 @@ You will need a skillshare premium account to access premium content.
 This script will not handle login for you.
 
 1. Log-in to skillshare in your browser.
-2. Download "CookieManager - Cookie Editor" extension:
-https://chrome.google.com/webstore/detail/cookiemanager-cookie-edit/hdhngoamekjhmnpenphenpaiindoinpo
+2. Download "CookieManager - Cookie Editor" extension: https://chrome.google.com/webstore/detail/cookiemanager-cookie-edit/hdhngoamekjhmnpenphenpaiindoinpo
 3. Go to skillshare course you want to download.
 4. Open CookieManager extension.
 5. Search for PHPSESSID and copy it.
