@@ -1,4 +1,4 @@
-# Skillshare video downloader in python
+# Skillshare video + german subtitles downloader in python
 
 ### Support your content creators, do NOT use this for piracy!
 
