@@ -67,12 +67,51 @@ class Downloader(object):
         if not os.path.exists(base_path):
             os.makedirs(base_path)
 
-        for u in data['_embedded']['units']['_embedded']['units']:
-            for s in u['_embedded']['sessions']['_embedded']['sessions']:
+        try:
+            for u in data['_embedded']['units']['_embedded']['units']:
+                for s in u['_embedded']['sessions']['_embedded']['sessions']:
+                    video_id = None
+
+                    if 'video_hashed_id' in s and s['video_hashed_id']:
+                        video_id = s['video_hashed_id'].split(':')[1]
+                    elif 'video_thumbnail_url' in s and s['video_thumbnail_url']:
+                        video_id = s['video_thumbnail_url'].split('/')[6]
+
+                    if not video_id:
+                        # NOTE: this happens sometimes...
+                        # seems random and temporary but might be some random
+                        # server-side check on user-agent etc?
+                        # ...think it's more stable now with those set to
+                        # emulate an android device
+                        raise Exception('Failed to read video ID from data')
+
+                    s_title = s['title']
+
+                    if self.is_unicode_string(s_title):
+                        s_title = s_title.encode('ascii', 'replace')  # ignore any weird char
+
+                    file_name = '{} - {}'.format(
+                        str(s['index'] + 1).zfill(2),
+                        slugify(s_title),
+                    )
+
+                    self.download_video(
+                        fpath='{base_path}/{session}.mp4'.format(
+                            base_path=base_path,
+                            session=file_name,
+                        ),
+                        video_id=video_id,
+                    )
+
+                    print('')
+        except TypeError:
+            for s in data['_embedded']['sessions']['_embedded']['sessions']:
                 video_id = None
 
                 if 'video_hashed_id' in s and s['video_hashed_id']:
                     video_id = s['video_hashed_id'].split(':')[1]
+                elif 'video_thumbnail_url' in s and s['video_thumbnail_url']:
+                    video_id = s['video_thumbnail_url'].split('/')[6]
 
                 if not video_id:
                     # NOTE: this happens sometimes...
@@ -168,3 +207,36 @@ class Downloader(object):
                     sys.stdout.flush()
 
             print('')
+
+        try:
+            for x in meta_res.json()['text_tracks']:
+                sub_url = x['src']
+                break
+
+            subpath = fpath.replace(".mp4", ".vtt")
+            print('Downloading sub {}...'.format(subpath))
+
+            if os.path.exists(subpath):
+                print('Video already downloaded, skipping...')
+                return
+
+            with open(subpath, 'wb') as f:
+                response = requests.get(sub_url, allow_redirects=True, stream=True)
+                total_length = response.headers.get('content-length')
+
+                if not total_length:
+                    f.write(response.content)
+
+                else:
+                    dl = 0
+                    total_length = int(total_length)
+
+                    for data in response.iter_content(chunk_size=4096):
+                        dl += len(data)
+                        f.write(data)
+                        done = int(50 * dl / total_length)
+                        sys.stdout.write("\r[%s%s]" % ('=' * done, ' ' * (50 - done)))
+                        sys.stdout.flush()
+
+        except:
+            print("error on subtitle")
